@@ -6,6 +6,7 @@
 	import type { ExportedConversations } from '$lib/types/database';
 	import { createMessageCountMap } from '$lib/utils/conversation-utils';
 	import { chatStore } from '$lib/stores/chat.svelte';
+	import { conversationsStore } from '$lib/stores/conversations.svelte';
 
 	let exportedConversations = $state<DatabaseConversation[]>([]);
 	let importedConversations = $state<DatabaseConversation[]>([]);
@@ -138,7 +139,7 @@
 
 			await DatabaseService.importConversations(selectedData);
 
-			await chatStore.loadConversations();
+			await conversationsStore.loadConversations();
 
 			importedConversations = selectedConversations;
 			showImportSummary = true;
@@ -146,7 +147,8 @@
 			showImportDialog = false;
 		} catch (err) {
 			console.error('Import failed:', err);
-			alert('Failed to import conversations. Please check the file format.');
+			const message = err instanceof Error ? err.message : String(err);
+			alert(`Failed to import conversations: ${message}`);
 		}
 	}
 </script>

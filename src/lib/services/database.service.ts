@@ -373,8 +373,26 @@ export class DatabaseService {
 				}
 
 				await db.conversations.add(conv);
+
+				const hasRoot = messages.some((m) => m.type === 'root' && m.parent === null);
+				let rootId: string | null = null;
+				if (!hasRoot) {
+					rootId = await DatabaseService.createRootMessage(conv.id);
+				}
+
+				// Collect all known message IDs in this import batch
+				const knownIds = new Set(messages.map((m) => m.id));
+
 				for (const msg of messages) {
-					await db.messages.put(msg);
+					// If parent references a missing message (e.g. root node not in export),
+					// remap it to the newly created root.
+					const parentMissing = msg.parent !== null && !knownIds.has(msg.parent);
+					const sanitized = {
+						...msg,
+						extra: msg.extra ?? [],
+						parent: parentMissing && rootId ? rootId : msg.parent
+					};
+					await db.messages.put(sanitized);
 				}
 
 				importedCount++;
