@@ -166,10 +166,10 @@ export default defineConfig({
 
 	server: {
 		port: 8000,
-		headers: {
-			'Cross-Origin-Embedder-Policy': 'require-corp',
-			'Cross-Origin-Opener-Policy': 'same-origin'
-		},
+		// headers: {
+		// 	'Cross-Origin-Embedder-Policy': 'require-corp',
+		// 	'Cross-Origin-Opener-Policy': 'same-origin'
+		// },
 		proxy: {
 			'/props': 'http://localhost:8080',
 			'/cors-proxy': 'http://localhost:8080'
