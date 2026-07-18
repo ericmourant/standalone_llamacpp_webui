@@ -128,7 +128,7 @@ Keep route components thin. They should initialize the adapters, load a conversa
 ### Runtime configuration
 
 - Supply managed defaults from Ubuntu Zombie rather than the WebUI's current default external DeepInfra API endpoint.
-- Disable arbitrary endpoint, API key, custom JSON, and MCP configuration unless they are intentional administrator/user features.
+- Disable arbitrary endpoint, API key, custom JSON request parameters for model generation, and MCP configuration unless they are intentional administrator/user features.
 - Replace `/props` and slot polling with Ubuntu Zombie capability/health data, or remove those displays.
 - Ensure all API paths respect Ubuntu Zombie's deployment base path.
 - Remove the llama.cpp-specific build plugin that generates `public/index.html.gz` unless Ubuntu Zombie serves pre-compressed `.gz` files directly. Otherwise rely on Ubuntu Zombie's normal hosting or compression middleware.
@@ -247,5 +247,6 @@ Also run Ubuntu Zombie's existing full validation suite and inspect the producti
 6. Must existing primitive-chat conversations be migrated?
 7. Does Ubuntu Zombie need its current chat URL and visual shell preserved?
 8. Is direct source integration preferred, or is a separately built/mounted chat application acceptable?
+9. What unit, integration, component, and end-to-end test infrastructure does Ubuntu Zombie already use, and which checks are required before merge and deployment?
 
 These answers are blocking inputs to the final architecture. Until they are available, the recommended default is a directly linked or mounted chat route using a same-origin authenticated gateway, managed capabilities, no browser-visible provider secrets, and browser-local history only as an explicitly accepted interim state.
