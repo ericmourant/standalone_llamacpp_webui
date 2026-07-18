@@ -126,7 +126,7 @@ Keep route components thin. They should initialize the adapters, load a conversa
 
 ### Runtime configuration
 
-- Supply managed defaults from Ubuntu Zombie rather than the WebUI's current external DeepInfra default.
+- Supply managed defaults from Ubuntu Zombie rather than the WebUI's current default external DeepInfra API endpoint.
 - Disable arbitrary endpoint, API key, custom JSON, and MCP configuration unless they are intentional administrator/user features.
 - Replace `/props` and slot polling with Ubuntu Zombie capability/health data, or remove those displays.
 - Ensure all API paths respect Ubuntu Zombie's deployment base path.
@@ -151,6 +151,10 @@ Implement the persistence adapter against Ubuntu Zombie's authenticated conversa
 - Atomic branch creation and cascading deletion.
 
 Do not store large base64 attachments in both IndexedDB and the backend. Define upload limits, accepted MIME types, retention, deletion, malware handling, and authorization for attachment retrieval.
+
+### Hybrid mode
+
+Keep transient drafts and selected preferences in the browser while storing conversations and attachment references in Ubuntu Zombie. Define the source of truth, synchronization behavior, offline limits, conflict handling, and logout cleanup so local data cannot diverge silently from server history.
 
 ### Existing primitive-chat history
 
@@ -234,7 +238,7 @@ Also run Ubuntu Zombie's existing full validation suite and inspect the producti
 
 ## Clarifications Required Before Implementation
 
-1. Should the replacement preserve Ubuntu Zombie's existing backend, authentication, and server-stored history, or should it adopt this WebUI's browser-local settings and IndexedDB history?
+1. Which Phase 4 storage mode should the replacement use: browser-local, server-backed, or hybrid? Should Ubuntu Zombie's existing backend, authentication, and history remain authoritative?
 2. What frontend framework and build system does the current Ubuntu Zombie version use, and which exact route/component is the primitive chat?
 3. Is Ubuntu Zombie's model endpoint already OpenAI-compatible, including streaming and tool calls?
 4. Which features are in scope for the first release: text only, attachments, branching, reasoning, MCP tools, search mode, image generation, and advanced model parameters?
