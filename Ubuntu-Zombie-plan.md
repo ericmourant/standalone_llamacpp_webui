@@ -17,10 +17,11 @@ The replacement UI is a client-only SvelteKit 2/Svelte 5 application with a stat
 - `src/lib/services/database.service.ts`: browser-local Dexie persistence for conversations and message trees.
 - `src/lib/stores/settings.svelte.ts`: browser-local API and generation settings.
 - `src/lib/stores/mcp.svelte.ts` and `src/lib/services/mcp.service.ts`: optional browser-to-MCP connectivity.
+- `src/routes/search/`: optional Perplexity-style search flow that requires web-search tools and source citations.
 - `svelte.config.js`: static fallback, relative paths, hash router, and inline bundle strategy.
 - `vite.config.ts`: standalone llama.cpp packaging, including generation of `public/index.html.gz`.
 
-The source WebUI currently assumes that users may enter an API base URL and API key in browser settings. That behavior must not be carried into Ubuntu Zombie unchanged if Ubuntu Zombie owns or brokers credentials.
+The source WebUI currently allows users to enter an API base URL and API key in browser settings. In an Ubuntu Zombie managed deployment, remove or hide those controls and obtain credentials through the authenticated server gateway; retain them only if user-managed providers are an explicit product requirement.
 
 ## Recommended Integration Shape
 
@@ -96,12 +97,12 @@ Move the reusable chat implementation as a cohesive feature, retaining:
 - Shared UI primitives, icons, styles, constants, enums, and type declarations referenced by the feature.
 - Existing client and unit tests for all moved modules.
 
-Separate host-specific behavior behind adapters:
+Separate host-specific behavior behind integration interfaces implemented as services, following the source project's service naming while making the Ubuntu Zombie boundary explicit:
 
-- `InferenceAdapter`: chat, model, capability, image, and cancellation operations.
-- `PersistenceAdapter`: local browser storage initially, with a future server-backed option.
-- `HostAdapter`: navigation, authentication failure handling, notifications, theme, and product links.
-- `ToolAdapter`: built-in tools and optional trusted MCP execution.
+- `InferenceService`: chat, model, capability, image, and cancellation operations.
+- `PersistenceService`: local browser storage initially, with a future server-backed option.
+- `HostService`: navigation, authentication failure handling, notifications, theme, and product links.
+- `ToolService`: built-in tools and optional trusted MCP execution.
 
 Keep route components thin. They should initialize the adapters, load a conversation, and render the feature rather than owning chat logic.
 
@@ -130,7 +131,7 @@ Keep route components thin. They should initialize the adapters, load a conversa
 - Disable arbitrary endpoint, API key, custom JSON, and MCP configuration unless they are intentional administrator/user features.
 - Replace `/props` and slot polling with Ubuntu Zombie capability/health data, or remove those displays.
 - Ensure all API paths respect Ubuntu Zombie's deployment base path.
-- Remove the llama.cpp-specific gzip-copy build plugin from the integrated build unless Ubuntu Zombie serves that artifact format.
+- Remove the llama.cpp-specific build plugin that generates `public/index.html.gz` unless Ubuntu Zombie serves pre-compressed `.gz` files directly. Otherwise rely on Ubuntu Zombie's normal hosting or compression middleware.
 
 ## Phase 4: Data and Conversation Migration
 
@@ -150,7 +151,7 @@ Implement the persistence adapter against Ubuntu Zombie's authenticated conversa
 - Reasoning, tool calls, timings, and timestamps.
 - Atomic branch creation and cascading deletion.
 
-Do not store large base64 attachments in both IndexedDB and the backend. Define upload limits, accepted MIME types, retention, deletion, malware handling, and authorization for attachment retrieval.
+The current WebUI stores attachment payloads as base64 data in each message's IndexedDB `extra` field. For server-backed mode, migrate those payloads through an authenticated upload flow, replace them with stable attachment references only after successful upload, and retain resumable migration state for failures. Do not leave duplicate large payloads in both IndexedDB and the backend after migration. Define upload limits, accepted MIME types, retention, deletion, malware handling, and authorization for attachment retrieval.
 
 ### Hybrid mode
 
@@ -241,7 +242,7 @@ Also run Ubuntu Zombie's existing full validation suite and inspect the producti
 1. Which Phase 4 storage mode should the replacement use: browser-local, server-backed, or hybrid? Should Ubuntu Zombie's existing backend, authentication, and history remain authoritative?
 2. What frontend framework and build system does the current Ubuntu Zombie version use, and which exact route/component is the primitive chat?
 3. Is Ubuntu Zombie's model endpoint already OpenAI-compatible, including streaming and tool calls?
-4. Which features are in scope for the first release: text only, attachments, branching, reasoning, MCP tools, search mode, image generation, and advanced model parameters?
+4. Which features are in scope for the first release: text only, attachments, branching, reasoning, MCP tools, Perplexity-style `/search` mode with web-search tools and citations, image generation, and advanced model parameters?
 5. May users configure arbitrary providers and MCP servers, or must all traffic pass through administrator-managed Ubuntu Zombie services?
 6. Must existing primitive-chat conversations be migrated?
 7. Does Ubuntu Zombie need its current chat URL and visual shell preserved?
