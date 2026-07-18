@@ -2,7 +2,7 @@
 
 ## Objective
 
-Replace Ubuntu Zombie's primitive chat experience with the standalone llama.cpp WebUI while preserving Ubuntu Zombie's product shell, authentication and deployment model, and existing model access. The replacement should deliver streaming chat, local conversation history, branching, attachments, model settings, reasoning display, and optional MCP tools without exposing backend credentials in the browser.
+Replace Ubuntu Zombie's current chat experience with the standalone llama.cpp WebUI while preserving Ubuntu Zombie's product shell, authentication and deployment model, and existing model access. The replacement should deliver streaming chat, local conversation history, branching, attachments, model settings, reasoning display, and optional MCP tools without exposing backend credentials in the browser.
 
 ## Current WebUI Baseline
 
@@ -33,7 +33,7 @@ Prefer this order:
 2. **Mounted static application:** If frameworks differ, build the WebUI as a static asset mounted at an authenticated path such as `/chat/`, with Ubuntu Zombie providing navigation and a same-origin API gateway.
 3. **Iframe isolation:** Use only as a short-lived migration path when dependency or CSS collisions prevent direct mounting. Define explicit theme, navigation, and authentication messaging, then retire the iframe after parity is reached.
 
-Avoid copying only visual components while retaining the primitive chat state and request code. The UI depends on coordinated stores, services, database types, attachment processing, and streaming behavior.
+Avoid copying only visual components while retaining the existing chat state and request code. The UI depends on coordinated stores, services, database types, attachment processing, and streaming behavior.
 
 ## Phase 0: Resolve Product and Architecture Decisions
 
@@ -110,12 +110,12 @@ Keep route components thin. They should initialize the adapters, load a conversa
 
 ### Application shell and routing
 
-- Replace the primitive chat route while keeping its stable public URL when practical.
+- Replace the existing chat route while keeping its stable public URL when practical.
 - Map new-chat and conversation routes into Ubuntu Zombie's router.
 - Integrate the chat sidebar with Ubuntu Zombie's navigation, especially on small screens.
 - Replace hard-coded hash-route navigation and llama.cpp route assumptions with host navigation.
 - Preserve deep links, refresh behavior, browser back/forward navigation, and any existing query-based prompts.
-- Add a compatibility redirect from retired primitive-chat URLs if route shapes change.
+- Add a compatibility redirect from retired legacy-chat URLs if route shapes change.
 
 ### Styling and branding
 
@@ -128,7 +128,7 @@ Keep route components thin. They should initialize the adapters, load a conversa
 ### Runtime configuration
 
 - Supply managed defaults from Ubuntu Zombie rather than the WebUI's current default external DeepInfra API endpoint.
-- Disable arbitrary endpoint, API key, custom JSON request parameters for model generation, and MCP configuration unless they are intentional administrator/user features.
+- Disable the following unless they are intentional administrator or user features: arbitrary endpoint configuration, API key input, custom JSON request parameters for model generation, and MCP configuration.
 - Replace `/props` and slot polling with Ubuntu Zombie capability/health data, or remove those displays.
 - Ensure all API paths respect Ubuntu Zombie's deployment base path.
 - Remove the llama.cpp-specific build plugin that generates `public/index.html.gz` unless Ubuntu Zombie serves pre-compressed `.gz` files directly. Otherwise rely on Ubuntu Zombie's normal hosting or compression middleware.
@@ -157,7 +157,7 @@ The current WebUI stores attachment payloads as base64 data in each message's In
 
 Keep transient drafts and selected preferences in the browser while storing conversations and attachment references in Ubuntu Zombie. Define the source of truth, synchronization behavior, offline limits, conflict handling, and logout cleanup so local data cannot diverge silently from server history.
 
-### Existing primitive-chat history
+### Existing chat history
 
 - Inventory its schema and identify which fields map losslessly.
 - Create a versioned, idempotent migration when history is retained.
@@ -180,7 +180,7 @@ Introduce capabilities in controlled slices:
 7. Built-in tools and trusted MCP tools.
 8. Search mode and image generation, only if they are Ubuntu Zombie requirements.
 
-Keep unavailable controls hidden rather than disabled without explanation. Add a server-side feature flag that can switch users back to the primitive chat during rollout.
+Keep unavailable controls hidden rather than disabled without explanation. Add a server-side feature flag that can switch users back to the legacy chat during rollout.
 
 ## Phase 6: Testing and Validation
 
@@ -220,13 +220,13 @@ Also run Ubuntu Zombie's existing full validation suite and inspect the producti
 - Enable for maintainers, then a small user cohort, while monitoring request failures, stream completion, latency, cancellation, storage errors, and frontend exceptions.
 - Verify rollback does not corrupt new or migrated conversations.
 - Expand rollout only after accessibility, security, and migration acceptance.
-- Remove the primitive UI, obsolete API code, stale dependencies, old routes, and migration-only compatibility code after the rollback window.
+- Remove the legacy UI, obsolete API code, stale dependencies, old routes, and migration-only compatibility code after the rollback window.
 - Update Ubuntu Zombie's user documentation, deployment configuration, privacy statement, and contributor setup.
 - Define how future standalone WebUI updates are imported and tested to avoid an unmaintainable fork.
 
 ## Acceptance Criteria
 
-- The Ubuntu Zombie chat route uses the new interface with no primitive chat remaining after rollout.
+- The Ubuntu Zombie chat route uses the new interface with no legacy chat remaining after rollout.
 - Authenticated users can stream, stop, retry, reload, and manage conversations without exposing provider credentials.
 - Supported features match the server capability contract; unsupported features are absent.
 - Conversation and attachment access is isolated per user in server-backed mode.
@@ -240,11 +240,11 @@ Also run Ubuntu Zombie's existing full validation suite and inspect the producti
 ## Clarifications Required Before Implementation
 
 1. Which Phase 4 storage mode should the replacement use: browser-local, server-backed, or hybrid? Should Ubuntu Zombie's existing backend, authentication, and history remain authoritative?
-2. What frontend framework and build system does the current Ubuntu Zombie version use, and which exact route/component is the primitive chat?
+2. What frontend framework and build system does the current Ubuntu Zombie version use, and which exact route/component implements the existing chat?
 3. Is Ubuntu Zombie's model endpoint already OpenAI-compatible, including streaming and tool calls?
 4. Which features are in scope for the first release: text only, attachments, branching, reasoning, MCP tools, Perplexity-style `/search` mode with web-search tools and citations, image generation, and advanced model parameters?
 5. May users configure arbitrary providers and MCP servers, or must all traffic pass through administrator-managed Ubuntu Zombie services?
-6. Must existing primitive-chat conversations be migrated?
+6. Must existing chat conversations be migrated?
 7. Does Ubuntu Zombie need its current chat URL and visual shell preserved?
 8. Is direct source integration preferred, or is a separately built/mounted chat application acceptable?
 9. What unit, integration, component, and end-to-end test infrastructure does Ubuntu Zombie already use, and which checks are required before merge and deployment?
